@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Budget Tracker</title>
+    <style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #f5f0e8 0%, #ede8dc 50%, #e8e0d0 100%);
+    min-height: 100vh;
+    padding: 30px 20px;
+    color: #4a3f35;
+}
+
+h1 {
+    font-size: 26px;
+    text-align: center;
+    margin-bottom: 25px;
+    color: #8b6f47;
+    letter-spacing: 2px;
+}
+
+/* ── 顶部总览 ── */
+.top-overview {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 15px;
+    max-width: 960px;
+    margin: 0 auto 25px;
+}
+
+.overview-card {
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    border: 1px solid rgba(0,0,0,0.06);
+}
+
+.overview-card.balance {
+    background: linear-gradient(135deg, #c9a96e, #a07850);
+    box-shadow: 0 6px 20px rgba(160,120,80,0.25);
+    color: white;
+}
+
+.overview-card.inc {
+    background: #eef7f1;
+    border-color: #b8dfc7;
+}
+
+.overview-card.exp {
+    background: #fdf0ef;
+    border-color: #f0c4c0;
+}
+
+.overview-card .label {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-bottom: 8px;
+}
+
+.overview-card.balance .label { color: rgba(255,255,255,0.85); }
+.overview-card.inc .label { color: #7aab90; }
+.overview-card.exp .label { color: #c4887e; }
+
+.overview-card .amount { font-size: 24px; font-weight: bold; }
+.overview-card.balance .amount { color: white; }
+.inc .amount { color: #4a9e72; }
+.exp .amount { color: #d4756b; }
+
+/* ── 主体左右 ── */
+.main-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    max-width: 960px;
+    margin: 0 auto 20px;
+    align-items: start;
+}
+
+/* ── 通用卡片 ── */
+.card {
+    background: rgba(255,255,255,0.7);
+    border-radius: 18px;
+    padding: 22px;
+    border: 1px solid rgba(0,0,0,0.07);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.card h3 {
+    font-size: 15px;
+    color: #8b6f47;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(0,0,0,0.07);
+}
+
+/* ── 表单 ── */
+.type-toggle { display: flex; gap: 8px; margin-bottom: 14px; }
+
+.type-btn {
+    flex: 1;
+    padding: 9px;
+    border: 1px solid #ddd;
+    border-radius: 9px;
+    background: #f9f6f1;
+    color: #aaa;
+    cursor: pointer;
+    font-size: 13px;
+    transition: 0.3s;
+}
+
+.type-btn.active-income {
+    background: #eef7f1;
+    border-color: #7aab90;
+    color: #4a9e72;
+}
+
+.type-btn.active-expense {
+    background: #fdf0ef;
+    border-color: #e8a09a;
+    color: #d4756b;
+}
+
+.form-group { margin-bottom: 11px; }
+
+.form-group label {
+    display: block;
+    font-size: 11px;
+    color: #a89880;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 13px;
+    background: #faf7f3;
+    border: 1px solid #e0d8cc;
+    border-radius: 9px;
+    color: #4a3f35;
+    font-size: 13px;
+    outline: none;
+    transition: 0.3s;
+    font-family: Arial, sans-serif;
+    resize: none;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus { border-color: #c9a96e; }
+
+.form-group select option { background: #faf7f3; }
+
+.add-btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #c9a96e, #a07850);
+    color: white;
+    border: none;
+    border-radius: 9px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: 0.3s;
+    margin-top: 4px;
+}
+
+.add-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+
+/* ── 分支 ── */
+.branch-create { display: flex; gap: 8px; margin-bottom: 12px; }
+
+.branch-create input {
+    flex: 1;
+    padding: 9px 12px;
+    background: #faf7f3;
+    border: 1px solid #e0d8cc;
+    border-radius: 9px;
+    color: #4a3f35;
+    font-size: 13px;
+    outline: none;
+}
+
+.branch-create input:focus { border-color: #c9a96e; }
+
+.branch-add-btn {
+    padding: 9px 14px;
+    background: #f5ede0;
+    border: 1px solid #c9a96e;
+    border-radius: 9px;
+    color: #8b6f47;
+    cursor: pointer;
+    font-size: 13px;
+    transition: 0.3s;
+    white-space: nowrap;
+}
+
+.branch-add-btn:hover { background: #c9a96e; color: white; }
+
+.branch-item {
+    background: #faf7f3;
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 8px;
+    border: 1px solid #e8e0d4;
+}
+
+.branch-item.warning { border-color: #e8c080; background: #fdf8ee; }
+.branch-item.danger  { border-color: #e8a09a; background: #fdf3f2; }
+
+.branch-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; }
+.branch-name { font-size: 13px; font-weight: bold; color: #4a3f35; }
+.branch-actions { display: flex; gap: 8px; align-items: center; }
+.branch-balance { font-size: 13px; font-weight: bold; }
+
+.branch-delete {
+    background: transparent; border: none; color: #ccc;
+    cursor: pointer; font-size: 12px; padding: 2px; transition: 0.3s;
+}
+.branch-delete:hover { color: #d4756b; opacity: 1; transform: none; }
+
+.branch-bar-bg { background: #e8e0d4; border-radius: 10px; height: 5px; overflow: hidden; }
+.branch-bar { height: 5px; border-radius: 10px; transition: 0.5s; }
+
+.branch-meta { display: flex; justify-content: space-between; font-size: 10px; color: #b0a090; margin-top: 4px; }
+
+.branch-warning-msg { font-size: 11px; margin-top: 5px; padding: 3px 8px; border-radius: 5px; text-align: center; }
+.branch-warning-msg.yellow { background: #fdf3dc; color: #b8860b; }
+.branch-warning-msg.red    { background: #fdf0ef; color: #c0504a; }
+
+/* ── 记录 ── */
+.records-full {
+    max-width: 960px;
+    margin: 0 auto 25px;
+}
+
+.records-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+
+.month-select {
+    padding: 6px 12px;
+    background: #faf7f3;
+    border: 1px solid #e0d8cc;
+    border-radius: 8px;
+    color: #4a3f35;
+    font-size: 12px;
+    outline: none;
+    cursor: pointer;
+}
+
+.month-select option { background: #faf7f3; }
+
+.record-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 11px 0;
+    border-bottom: 1px solid #f0ebe3;
+}
+
+.record-item:last-child { border-bottom: none; }
+.record-left { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.record-desc { font-size: 13px; color: #4a3f35; }
+.record-note { font-size: 11px; color: #b0a090; font-style: italic; }
+.record-meta { font-size: 10px; color: #c0b0a0; }
+.record-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.record-amount { font-size: 15px; font-weight: bold; }
+
+.record-edit, .record-delete {
+    background: transparent; border: none;
+    cursor: pointer; font-size: 13px; padding: 3px; transition: 0.3s; color: #ccc;
+}
+.record-edit:hover  { color: #c9a96e; opacity: 1; transform: none; }
+.record-delete:hover { color: #d4756b; opacity: 1; transform: none; }
+
+.empty-records { text-align: center; color: #c0b0a0; padding: 20px 0; font-size: 13px; }
+
+/* ── Modal ── */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.3);
+    z-index: 999;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-overlay.open { display: flex; }
+
+.modal {
+    background: #faf7f3;
+    border: 1px solid #e0d8cc;
+    border-radius: 18px;
+    padding: 28px;
+    width: 400px;
+    max-width: 90vw;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+}
+
+.modal h3 { color: #8b6f47; margin-bottom: 18px; font-size: 16px; }
+
+.modal .type-toggle { display: flex; gap: 8px; margin-bottom: 14px; }
+
+.modal-btns { display: flex; gap: 10px; margin-top: 15px; }
+
+.modal-btns button {
+    flex: 1; padding: 11px; border-radius: 9px;
+    border: none; cursor: pointer; font-size: 14px; font-weight: bold; transition: 0.3s;
+}
+
+.btn-save { background: linear-gradient(135deg, #c9a96e, #a07850); color: white; }
+.btn-save:hover { opacity: 0.88; }
+.btn-cancel { background: #ede8dc; color: #8b6f47; }
+.btn-cancel:hover { background: #e0d8cc; }
+
+footer {
+    text-align: center; color: #b0a090; font-size: 12px;
+    max-width: 960px; margin: 0 auto; padding-top: 10px;
+}
+footer span { color: #8b6f47; }
+    </style>
+</head>
+<body>
+
+<h1>💰 Budget Tracker</h1>
+
+<div class="top-overview">
+    <div class="overview-card balance">
+        <div class="label">Total Balance</div>
+        <div class="amount" id="balance">RM 0.00</div>
+    </div>
+    <div class="overview-card inc">
+        <div class="label">Total Income</div>
+        <div class="amount" id="totalIncome">RM 0.00</div>
+    </div>
+    <div class="overview-card exp">
+        <div class="label">Total Expense</div>
+        <div class="amount" id="totalExpense">RM 0.00</div>
+    </div>
+</div>
+
+<div class="main-layout">
+    <div class="card">
+        <h3>➕ Add Transaction</h3>
+        <div class="type-toggle">
+            <button class="type-btn active-income" id="incomeBtn" onclick="setType('income')">⬆ Income</button>
+            <button class="type-btn" id="expenseBtn" onclick="setType('expense')">⬇ Expense</button>
+        </div>
+        <div class="form-group">
+            <label>Description</label>
+            <input type="text" id="descInput" placeholder="e.g. Salary, Groceries...">
+        </div>
+        <div class="form-group">
+            <label>Amount (RM)</label>
+            <input type="number" id="amountInput" placeholder="0.00" min="0">
+        </div>
+        <div class="form-group">
+            <label>Category</label>
+            <select id="categoryInput">
+                <option value="Salary">💼 Salary</option>
+                <option value="Freelance">💻 Freelance</option>
+                <option value="Food">🍜 Food</option>
+                <option value="Transport">🚗 Transport</option>
+                <option value="Shopping">🛍 Shopping</option>
+                <option value="Bills">📄 Bills</option>
+                <option value="Other">📦 Other</option>
+            </select>
+        </div>
+        <div class="form-group" id="branchSelectGroup" style="display:none;">
+            <label>Deduct from Branch (Optional)</label>
+            <select id="branchSelect">
+                <option value="">— None (deduct from total) —</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Note (Optional)</label>
+            <textarea id="noteInput" rows="2" placeholder="Add a note..."></textarea>
+        </div>
+        <button class="add-btn" onclick="addTransaction()">Add Transaction</button>
+    </div>
+
+    <div class="card">
+        <h3>🗂 Budget Branches</h3>
+        <div class="branch-create">
+            <input type="text" id="branchNameInput" placeholder="Branch name...">
+            <input type="number" id="branchAmountInput" placeholder="RM" min="0" style="width:80px;flex:none;">
+            <button class="branch-add-btn" onclick="addBranch()">+ Add</button>
+        </div>
+        <div id="branchList"></div>
+    </div>
+</div>
+
+<div class="records-full card">
+    <div class="records-header">
+        <h3 style="margin-bottom:0;border:none;">📋 Records</h3>
+        <select class="month-select" id="monthFilter" onchange="filterChanged()"></select>
+    </div>
+    <div id="recordList"></div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal">
+        <h3>✏️ Edit Transaction</h3>
+        <input type="hidden" id="editId">
+        <div class="type-toggle">
+            <button class="type-btn" id="editIncomeBtn" onclick="setEditType('income')">⬆ Income</button>
+            <button class="type-btn" id="editExpenseBtn" onclick="setEditType('expense')">⬇ Expense</button>
+        </div>
+        <div class="form-group">
+            <label>Description</label>
+            <input type="text" id="editDesc">
+        </div>
+        <div class="form-group">
+            <label>Amount (RM)</label>
+            <input type="number" id="editAmount" min="0">
+        </div>
+        <div class="form-group">
+            <label>Category</label>
+            <select id="editCategory">
+                <option value="Salary">💼 Salary</option>
+                <option value="Freelance">💻 Freelance</option>
+                <option value="Food">🍜 Food</option>
+                <option value="Transport">🚗 Transport</option>
+                <option value="Shopping">🛍 Shopping</option>
+                <option value="Bills">📄 Bills</option>
+                <option value="Other">📦 Other</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Note (Optional)</label>
+            <textarea id="editNote" rows="2"></textarea>
+        </div>
+        <div class="modal-btns">
+            <button class="btn-cancel" onclick="closeEdit()">Cancel</button>
+            <button class="btn-save" onclick="saveEdit()">Save</button>
+        </div>
+    </div>
+</div>
+
+<footer><p>© 2025 <span>Vesper</span>. All rights reserved.</p></footer>
+
+<script>
+let currentType = "income";
+let editType = "income";
+let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
+let branches = JSON.parse(localStorage.getItem("branches")) || [];
+
+function setType(type) {
+    currentType = type;
+    document.getElementById("incomeBtn").className = "type-btn";
+    document.getElementById("expenseBtn").className = "type-btn";
+    if (type === "income") {
+        document.getElementById("incomeBtn").className = "type-btn active-income";
+        document.getElementById("branchSelectGroup").style.display = "none";
+    } else {
+        document.getElementById("expenseBtn").className = "type-btn active-expense";
+        document.getElementById("branchSelectGroup").style.display = "block";
+    }
+    updateBranchSelect();
+}
+
+function setEditType(type) {
+    editType = type;
+    document.getElementById("editIncomeBtn").className = "type-btn";
+    document.getElementById("editExpenseBtn").className = "type-btn";
+    document.getElementById("editIncomeBtn").className = type === "income" ? "type-btn active-income" : "type-btn";
+    document.getElementById("editExpenseBtn").className = type === "expense" ? "type-btn active-expense" : "type-btn";
+}
+
+function addBranch() {
+    let name = document.getElementById("branchNameInput").value.trim();
+    let amount = parseFloat(document.getElementById("branchAmountInput").value);
+    if (name === "" || isNaN(amount) || amount <= 0) { alert("Please enter branch name and amount."); return; }
+    branches.push({ id: Date.now(), name, budget: amount, spent: 0 });
+    saveBranches();
+    document.getElementById("branchNameInput").value = "";
+    document.getElementById("branchAmountInput").value = "";
+}
+
+function deleteBranch(id) {
+    if (!confirm("Delete this branch?")) return;
+    branches = branches.filter(b => b.id !== id);
+    saveBranches();
+}
+
+function saveBranches() {
+    localStorage.setItem("branches", JSON.stringify(branches));
+    renderBranches();
+    updateBranchSelect();
+}
+
+function renderBranches() {
+    let list = document.getElementById("branchList");
+    if (branches.length === 0) {
+        list.innerHTML = '<p style="color:#c0b0a0;font-size:12px;text-align:center;padding:10px 0;">No branches yet.</p>';
+        return;
+    }
+    list.innerHTML = branches.map(b => {
+        let remaining = b.budget - b.spent;
+        let percent = Math.min((b.spent / b.budget) * 100, 100);
+        let barColor = percent >= 100 ? "#d4756b" : percent >= 80 ? "#c9a040" : "#4a9e72";
+        let itemClass = percent >= 100 ? "branch-item danger" : percent >= 80 ? "branch-item warning" : "branch-item";
+        let warningMsg = percent >= 100
+            ? `<div class="branch-warning-msg red">⚠️ Exceeded by RM ${Math.abs(remaining).toFixed(2)}</div>`
+            : percent >= 80
+            ? `<div class="branch-warning-msg yellow">⚡ RM ${remaining.toFixed(2)} left</div>`
+            : "";
+        return `
+        <div class="${itemClass}">
+            <div class="branch-top">
+                <span class="branch-name">📁 ${b.name}</span>
+                <div class="branch-actions">
+                    <span class="branch-balance" style="color:${barColor}">RM ${remaining.toFixed(2)}</span>
+                    <button class="branch-delete" onclick="deleteBranch(${b.id})">🗑</button>
+                </div>
+            </div>
+            <div class="branch-bar-bg"><div class="branch-bar" style="width:${percent}%;background:${barColor};"></div></div>
+            <div class="branch-meta"><span>Spent: RM ${b.spent.toFixed(2)}</span><span>Budget: RM ${b.budget.toFixed(2)}</span></div>
+            ${warningMsg}
+        </div>`;
+    }).join('');
+}
+
+function updateBranchSelect() {
+    let select = document.getElementById("branchSelect");
+    let current = select.value;
+    select.innerHTML = '<option value="">— None (deduct from total) —</option>';
+    branches.forEach(b => {
+        let opt = document.createElement("option");
+        opt.value = b.id;
+        opt.textContent = `${b.name} (RM ${(b.budget - b.spent).toFixed(2)} left)`;
+        select.appendChild(opt);
+    });
+    if (current) select.value = current;
+}
+
+function addTransaction() {
+    let desc = document.getElementById("descInput").value.trim();
+    let amount = parseFloat(document.getElementById("amountInput").value);
+    let category = document.getElementById("categoryInput").value;
+    let note = document.getElementById("noteInput").value.trim();
+    let branchId = document.getElementById("branchSelect").value;
+    if (desc === "" || isNaN(amount) || amount <= 0) { alert("Please fill in all fields correctly."); return; }
+    if (currentType === "expense" && branchId !== "") {
+        let branch = branches.find(b => b.id == branchId);
+        if (branch) { branch.spent += amount; saveBranches(); }
+    }
+    transactions.push({
+        id: Date.now(), type: currentType, desc, amount, category, note,
+        branchId: currentType === "expense" ? branchId : "",
+        branchName: currentType === "expense" && branchId ? branches.find(b => b.id == branchId)?.name : "",
+        date: new Date().toLocaleDateString("en-MY", { year: "numeric", month: "short", day: "numeric" }),
+        month: new Date().toLocaleDateString("en-MY", { year: "numeric", month: "long" })
+    });
+    saveAndRender();
+    document.getElementById("descInput").value = "";
+    document.getElementById("amountInput").value = "";
+    document.getElementById("noteInput").value = "";
+}
+
+function deleteTransaction(id) {
+    let t = transactions.find(tx => tx.id === id);
+    if (t && t.type === "expense" && t.branchId) {
+        let branch = branches.find(b => b.id == t.branchId);
+        if (branch) { branch.spent = Math.max(0, branch.spent - t.amount); saveBranches(); }
+    }
+    transactions = transactions.filter(tx => tx.id !== id);
+    saveAndRender();
+}
+
+function openEdit(id) {
+    let t = transactions.find(tx => tx.id === id);
+    if (!t) return;
+    document.getElementById("editId").value = id;
+    document.getElementById("editDesc").value = t.desc;
+    document.getElementById("editAmount").value = t.amount;
+    document.getElementById("editCategory").value = t.category;
+    document.getElementById("editNote").value = t.note || "";
+    editType = t.type;
+    setEditType(t.type);
+    document.getElementById("editModal").classList.add("open");
+}
+
+function closeEdit() {
+    document.getElementById("editModal").classList.remove("open");
+}
+
+function saveEdit() {
+    let id = parseInt(document.getElementById("editId").value);
+    let t = transactions.find(tx => tx.id === id);
+    if (!t) return;
+    let newAmount = parseFloat(document.getElementById("editAmount").value);
+    let newDesc = document.getElementById("editDesc").value.trim();
+    if (newDesc === "" || isNaN(newAmount) || newAmount <= 0) { alert("Please fill in correctly."); return; }
+
+    // 还原旧分支金额
+    if (t.type === "expense" && t.branchId) {
+        let branch = branches.find(b => b.id == t.branchId);
+        if (branch) { branch.spent = Math.max(0, branch.spent - t.amount); }
+    }
+
+    // 如果新类型是expense且有分支，重新计入
+    if (editType === "expense" && t.branchId) {
+        let branch = branches.find(b => b.id == t.branchId);
+        if (branch) { branch.spent += newAmount; }
+    }
+
+    // 如果类型从expense改成income，清空分支关联
+    if (editType === "income") {
+        t.branchId = "";
+        t.branchName = "";
+    }
+
+    t.type = editType;
+    t.desc = newDesc;
+    t.amount = newAmount;
+    t.category = document.getElementById("editCategory").value;
+    t.note = document.getElementById("editNote").value.trim();
+
+    saveBranches();
+    saveAndRender();
+    closeEdit();
+}
+
+document.getElementById("editModal").addEventListener("click", function(e) {
+    if (e.target === this) closeEdit();
+});
+
+function saveAndRender() {
+    localStorage.setItem("transactions", JSON.stringify(transactions));
+    updateMonthFilter();
+    renderRecords();
+    updateSummary();
+}
+
+function filterChanged() { renderRecords(); updateSummary(); }
+
+function updateMonthFilter() {
+    let months = [...new Set(transactions.map(t => t.month))];
+    let select = document.getElementById("monthFilter");
+    let current = select.value;
+    select.innerHTML = '<option value="all">All</option>';
+    months.forEach(m => {
+        let opt = document.createElement("option");
+        opt.value = m; opt.textContent = m;
+        select.appendChild(opt);
+    });
+    if (current && months.includes(current)) select.value = current;
+}
+
+function getFilteredTransactions() {
+    let month = document.getElementById("monthFilter").value;
+    if (month === "all" || !month) return transactions;
+    return transactions.filter(t => t.month === month);
+}
+
+function renderRecords() {
+    let filtered = getFilteredTransactions();
+    let list = document.getElementById("recordList");
+    if (filtered.length === 0) {
+        list.innerHTML = '<p class="empty-records">No records found 💸</p>';
+        return;
+    }
+    list.innerHTML = [...filtered].reverse().map(t => `
+        <div class="record-item">
+            <div class="record-left">
+                <span class="record-desc">${t.category} — ${t.desc}</span>
+                ${t.branchName ? `<span class="record-note">📁 ${t.branchName}</span>` : ""}
+                ${t.note ? `<span class="record-note">💬 ${t.note}</span>` : ""}
+                <span class="record-meta">${t.date}</span>
+            </div>
+            <div class="record-right">
+                <span class="record-amount ${t.type === 'income' ? 'income' : 'expense'}">
+                    ${t.type === 'income' ? '+' : '-'} RM ${t.amount.toFixed(2)}
+                </span>
+                <button class="record-edit" onclick="openEdit(${t.id})">✏️</button>
+                <button class="record-delete" onclick="deleteTransaction(${t.id})">🗑</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function updateSummary() {
+    let filtered = getFilteredTransactions();
+    let income = filtered.filter(t => t.type === "income").reduce((s, t) => s + t.amount, 0);
+    let expense = filtered.filter(t => t.type === "expense").reduce((s, t) => s + t.amount, 0);
+    let balance = income - expense;
+    document.getElementById("totalIncome").textContent = `RM ${income.toFixed(2)}`;
+    document.getElementById("totalExpense").textContent = `RM ${expense.toFixed(2)}`;
+    let balanceEl = document.getElementById("balance");
+    balanceEl.textContent = `RM ${balance.toFixed(2)}`;
+    balanceEl.style.color = balance < 0 ? "#d4756b" : "white";
+}
+
+renderBranches();
+updateBranchSelect();
+updateMonthFilter();
+renderRecords();
+updateSummary();
+</script>
+
+</body>
+</html>
