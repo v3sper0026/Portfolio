@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Weather App</title>
+    <style>
+ 
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: Arial;
+        background: #0f0f1a;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        color: white;
+    }
+
+    .container {
+        background: #1a1a2e;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        width: 380px;
+        text-align: center;
+    }
+
+    h2 {
+        font-size: 24px;
+        margin-bottom: 25px;
+        color: #a0b4ff;
+    }
+
+    .input-group {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    input {
+        flex: 1;
+        padding: 12px 15px;
+        border: 1px solid #2e2e4d;
+        border-radius: 10px;
+        background: #0f0f1a;
+        color: white;
+        font-size: 15px;
+        outline: none;
+    }
+
+    input:focus {
+        border-color: #a0b4ff;
+    }
+
+    button {
+        padding: 12px 18px;
+        background: #4a6cf7;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 15px;
+        transition: 0.3s;
+    }
+
+    button:hover {
+        background: #3a5ce5;
+    }
+
+    #result img {
+        width: 80px;
+        margin: 10px 0;
+    }
+
+    #result h3 {
+        font-size: 22px;
+        margin-bottom: 15px;
+        color: #a0b4ff;
+    }
+
+    .weather-info {
+        background: #0f0f1a;
+        border-radius: 12px;
+        padding: 15px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .info-box {
+        background: #1a1a2e;
+        border-radius: 10px;
+        padding: 12px;
+    }
+
+    .info-box p:first-child {
+        font-size: 12px;
+        color: #888;
+        margin-bottom: 5px;
+    }
+
+    .info-box p:last-child {
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    .temp-main {
+        font-size: 48px;
+        font-weight: bold;
+        color: #a0b4ff;
+        margin: 5px 0;
+    }
+
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>🌤 Weather App</h2>
+
+        <div class="input-group">
+            <input id="cityInput" placeholder="Enter city name">
+            <button onclick="getWeather()">Search</button>
+        </div>
+
+        <div id="result"></div>
+    </div>
+
+<script>
+async function getWeather() {
+    let city = document.getElementById("cityInput").value.trim();
+    if (city === "") return;
+
+    let apiKey = "9f08e24b666a420bb6c41748263003";
+    let url = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}`;
+
+    let response = await fetch(url);
+    let data = await response.json();
+
+    if (data.error) {
+        document.getElementById("result").innerHTML = `
+            <p style="color: red;">❌ City not found. Please try again.</p>
+        `;          
+        return;
+    }
+
+    let name = data.location.name;
+    let country = data.location.country;
+    let temp = data.current.temp_c;
+    let humidity = data.current.humidity;
+    let condition = data.current.condition.text;
+    let icon = data.current.condition.icon;
+
+document.getElementById("result").innerHTML = `
+    <img src="${icon}">
+    <p class="temp-main">${temp}°C</p>
+    <h3>${name}, ${country}</h3>
+    <p style="color:#888; margin-bottom:15px;">${condition}</p>
+    <div class="weather-info">
+        <div class="info-box">
+            <p>Feels Like</p>
+            <p>🌡 ${data.current.feelslike_c}°C</p>
+        </div>
+        <div class="info-box">
+            <p>Humidity</p>
+            <p>💧 ${humidity}%</p>
+        </div>
+        <div class="info-box">
+            <p>Wind</p>
+            <p>💨 ${data.current.wind_kph} km/h</p>
+        </div>
+        <div class="info-box">
+            <p>Country</p>
+            <p>🌍 ${country}</p>
+        </div>
+    </div>
+`;
+}
+
+document.getElementById("cityInput").addEventListener("keypress", function(event) {
+    if (event.key === "Enter") {
+        getWeather();
+    }
+});
+</script>
+
+</body>
+</html>
